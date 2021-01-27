@@ -5,39 +5,26 @@
 #include "getWord.h"	// for getNextWord
 #include "hashtable.h"	// for hashtable functionality
 
+
 /* Function Prototypes */
 int isNum( char *string ); // returns 1 if string is a number, 0 if not
+void checkArgs( int arg, char **argv);
 
 int main(int argc, char **argv){
 
-	// define help message to output when program not invoked properly
-	char *errorMessage = "\n\n\tUsage: ./wordpairs <-count> fileName1 <fileName2> <fileName3> ...\n\n\tWhere: count is the number of words to display\n\n";
 	
 	int displayNum = 0;	// number of word pairs to display (if left at 0, displays all contents of hashtable)
 	int fileStart = 1;	// this number holds the beginning of the fileNames in argv[1]. by default, assumes first argument is file
 
+	checkArgs( argc, argv ); //Check the arguments, and exit if they are not the right format
 
-	/* Command line argument checking */
-	// If there are no arguments, print error message and exit
-	if( argc == 1 ){
-		fprintf(stderr, "Error: This program requires at least one file argument%s", errorMessage);
-		exit(-1);
-	// if there is one argument, but it's a number, print error message and quit
-	}else if ( argc == 2){
+	// if the first argument starts with a dash
+	if ( argv[1][0] == '-' ){
+		// if the first argument is a number
 		if ( isNum( argv[1] ) ){
-			fprintf(stderr, "Error: This program requires at least one file argument%s", errorMessage);
-			exit(-1);
-		}
-	// if there are two or more arguments, check to see if first is a number
-	}else{
-		// if the first argument starts with a dash
-		if ( argv[1][0] == '-' ){
-			// if the first argument is a number
-			if ( isNum( argv[1] ) ){
-				// convert argument (excluding dash) to integer
-				displayNum = atoi( argv[1]+1 );
-				fileStart = 2;
-			}
+			// convert argument (excluding dash) to integer
+			displayNum = atoi( argv[1]+1 );
+			fileStart = 2;
 		}
 	}
 
@@ -53,7 +40,7 @@ int main(int argc, char **argv){
 		fp = fopen( argv[i], "r"); 	// open file in read mode	
 		// if the file does not exist, print error, free hashtable, and exit
 		if( fp == NULL ){
-			fprintf(stderr, "Error: file '%s' does not exist, or cannot be opened%s", argv[i], errorMessage);
+			fprintf(stderr, "Error: file '%s' does not exist, or cannot be opened\n", argv[i]);
 			hashtab_empty(ht);
 			exit(-1);
 		}
@@ -111,4 +98,29 @@ int isNum( char *string ){
 	}
 	return flag;
 }
+
+/* This function checks to see if the arguments are valid.
+   It has no return value because invalid arguments result in program exit
+   with -1 exit code
+*/
+void checkArgs( int argc, char **argv ){
 	
+	
+	// define help message to output when program not invoked properly
+	char *errorMessage = 	"\n\n\tUsage: ./wordpairs <-count> fileName1 <fileName2> <fileName3> ...\n\n"
+				"\tWhere: count is the number of words to display\n\n";
+
+	/* Command line argument checking */
+	// If there are no arguments, print error message and exit
+	if( argc == 1 ){
+		fprintf(stderr, "Error: This program requires at least one file argument%s", errorMessage);
+		exit(-1);
+	// if there is one argument, but it's a number, print error message and quit
+	}else if ( argc == 2){
+		if ( isNum( argv[1] ) ){
+			fprintf(stderr, "Error: This program requires at least one file argument%s", errorMessage);
+			exit(-1);
+		}
+	}
+}
+

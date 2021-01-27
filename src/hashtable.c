@@ -29,15 +29,15 @@ hashtable *hashtab_create(int tableSize);	// create table of given size
 void hashtab_empty(hashtable *ht);		// emtpy hashtable and free memory
 
 int search(node *list, char *string);	 	// search the supplied list for the given word pair
-int cmpfunc( const void * a, const void * b); 	// compare function for qsort
+int cmpfunc( const void *a, const void * b); 	// compare function for qsort
 void hashtab_resize(hashtable *old);		// copies values from -> to, and frees from
 
 /* This function initializes a hashtable and returns it */
 hashtable* hashtab_create(int tableSize){
 
 	/* Initialize table and allocate space on heap for hashtable and hashtable array */
-	hashtable *ht = malloc( sizeof( hashtable ));
-	ht->array = malloc(tableSize * sizeof(node**));
+	hashtable *ht = malloc( sizeof( hashtable ) );
+	ht->array = malloc( tableSize * sizeof( node**) );
 
 	/* Loop through array and initialize all values to null */
 	for(int i = 0; i < tableSize; i++){
@@ -54,7 +54,7 @@ hashtable* hashtab_create(int tableSize){
 	
 }
 
-/* This table resizes the supplied hashtable when the depth is greather than MAX_DEPTH
+/* This function resizes the supplied hashtable when the depth is greather than MAX_DEPTH
    It does this in the following steps:
 	1.) Create larger hashtable (new)
 	2.) Copy nodes from old into new, and free memory allocated to old
@@ -73,8 +73,8 @@ void hashtab_resize(hashtable *old){
 	for( int i = 0; i < old -> size; i++){
 
 		temp = old -> array[i];		// temp now points to head of linked list at location array[i]
-		while( temp!= NULL ){		// loop until end of list is reached
-			hashtab_put( new, temp -> key, temp -> value);	// copy node into new hashtable
+		while( temp != NULL ){		// loop until end of list is reached
+			hashtab_put( new, temp -> key, temp -> value );	// copy node into new hashtable
 			delNode = temp;		// copy temp node so it can be deleted
 			temp = temp -> next;	// crawl to next node
 			free( delNode -> key );	// free key (string) from last node
@@ -87,7 +87,7 @@ void hashtab_resize(hashtable *old){
 
 	free( old -> array );	// free the array from the old table
 	*old = *new;		// make the old hashtable point to contents of new hashtable
-	free(new);		// free	hashtable structure from new (because contents are now addressed using old)
+	free( new );		// free	hashtable structure from new (because contents are now addressed using old)
 }
 
 /*  This function will insert a new node into the hashtable
@@ -118,15 +118,16 @@ void hashtab_put(hashtable *ht, char *string, int val){
 	/* create new node */
 	node *newnode;			// pointer to new node	
 	newnode = malloc(sizeof(node)); // allocate space for new node
-	newnode -> key = malloc((strlen(string) + 1) * sizeof(char*));//allocate space for key
-	strcpy(newnode -> key, string);		// copy string into the key for the node 
+	newnode -> key = strdup(string);// duplicate parameter string assign to node key
 	newnode -> value = val;			
 	newnode -> next = NULL;
 
 	// if the location in the hashtable is null, add the new node
 	if( list == NULL ){
-		if( ht->maxDepth < 1) ht->maxDepth = 1;	// set max depth to 1 is this is first node
-		ht->array[index] = newnode;
+		if( ht->maxDepth < 1 )
+			 ht->maxDepth = 1;	// set max depth to 1 is this is first node
+
+		ht->array[index] = newnode;	// add new node to the hashtable array
 	}
 
 
@@ -137,14 +138,14 @@ void hashtab_put(hashtable *ht, char *string, int val){
 
 		/* traverse list to end, append node */
 		node *temp;			// temporary node allows for traversing list
-		temp=list;			// begin traversal at list (pointer to head)
+		temp = list;			// begin traversal at list (pointer to head)
 		while( temp -> next != NULL ){	// traverse list until last node
 			depth++;		// increment depth counter
 			temp = temp->next;
 		}
 		temp->next = newnode; 	// append new node
 
-		if( depth > ht->maxDepth ) ht->maxDepth = depth;
+		if( depth > ht->maxDepth ) ht->maxDepth = depth;// record current depth if larger than max
 	}
 
 	return;
@@ -169,15 +170,15 @@ void hashtab_display(hashtable *ht, int topNum){
 
 	// print out values to specified (topNum), or j (end of data), whichever is smaller
 	int limit = j;
-	if( topNum != 0 && topNum < j) limit = topNum;
+	if( topNum != 0 && topNum < j ) limit = topNum;
 
 	// call qsort to sort the array using the cmpfunc
-	qsort(sortArr, j, sizeof(node*), cmpfunc);
+	qsort( sortArr, j, sizeof( node* ), cmpfunc );
 
 
 	// output sorted array of data
-	for(int k = 0; k < limit; k++){
-		printf("%10d %s\n", sortArr[k] -> value, sortArr[k] -> key);
+	for( int k = 0; k < limit; k++ ){
+		printf("%10d %s\n", sortArr[k]->value, sortArr[k]->key);
 	}
 }
 
@@ -189,10 +190,10 @@ int cmpfunc( const void * p, const void * q){
 	node *b = *(node**)q;
 
 	// compare values of a and b. 
-	if( a -> value < b -> value )		// if current is less than next, return 1 to swap
+	if( a->value < b->value )		// if current is less than next, return 1 to swap
 		return 1;
 
-	else if ( a -> value > b -> value)	// if current is greather than next, return -1 to leave
+	else if ( a->value > b->value)		// if current is greather than next, return -1 to leave
 		return -1;
 
 	return 0;				// if values are same, do nothing
